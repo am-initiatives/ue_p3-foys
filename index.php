@@ -1,0 +1,466 @@
+<?php
+session_start();
+/* Connexion SQL */
+require_once("./connexion_mysql.php");
+require_once("./fonctions.php");
+
+
+// ETAGE
+if(isset($_COOKIE['etage']))
+{
+    $choix_etage=$_COOKIE['etage'];
+    $_SESSION['etage']=$_COOKIE['etage'];
+    if(($choix_etage<=7 AND $choix_etage>=1) OR $choix_etage==-1)
+    {
+	/* Requete SQL pour avoir les données de l'étage en cours*/
+	$req = $bdd->prepare('SELECT * FROM etages WHERE etage = ?');
+	$req->execute(array($choix_etage));
+	$etage=$req->fetch();
+	$req->closeCursor();
+    }
+    else
+    {
+	$_SESSION['etage']="";
+        header('Location: ./choisir_etage.php?erreur=1');
+	exit;
+    }
+}
+else
+{
+    /*si pas de variable étage alors on redirige vers le choix de l'étage*/
+    $_SESSION['etage']="";
+    header('Location: ./choisir_etage.php?erreur=0');
+    exit;
+}
+
+
+
+//ADMIN
+if(isset($_SESSION['admin']))
+{
+    if($_SESSION['admin']==true)
+    {
+        // mode admin actif
+	header('Location: ./etage_admin.php');
+
+    }
+}
+?>
+
+<html>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<head>
+
+<title>Zacachal'sss, pour la professionalisation de la latte</title>
+<style type="text/css">
+
+	::selection{ background-color: #E13300; color: white; }
+	::moz-selection{ background-color: #E13300; color: white; }
+	::webkit-selection{ background-color: #E13300; color: white; }
+
+	
+	@font-face { 
+		font-family: 'Zagoth'; 
+		src: url('./polices/OldLondon.ttf'); 
+	}
+	body {
+		background-color: <?=$etage['couleur2']?>;
+		margin: 5px;
+		font: 13px/20px normal Helvetica, Arial, sans-serif;
+		color: #E0FFFF;
+	}
+	
+	#container_id{}
+
+	#lattometre_label{
+		font-family: 'Zagoth', Old London, Consolas, Monaco, Courier New, Courier, monospace;
+		font-size: 50px;
+		text-align: left;
+
+		display: block;
+		position: absolute;
+		z-index: 5;
+		top:5%;
+		right:5%;
+		width:50px;
+		height: 421px;
+		color: <?=$etage['couleur2']?>;
+		background-color: <?=$etage['couleur1']?>;
+		
+	}
+
+	#info_id{
+		text-align: left;
+		height: auto;
+		display: block;
+		position: absolute;
+		top:5%;
+		left:2%;
+		width:25%;
+		height: 50%;
+		color: <?=$etage['couleur5']?>;
+		background-color: <?=$etage['couleur2']?>;
+	}
+	
+	
+	#lattometre_img{
+left:50%;
+margin-left:-300px;
+
+		display: block;
+		position: absolute;
+		z-index: 15;
+		display:none;
+	}
+	
+
+
+	#bucquage_input_id{
+		text-align: left;
+		display: block;
+		position: absolute;
+		top:5%;
+		left:25%;
+		width:50%;
+		height: 50%;
+		color:<?=$etage['couleur5']?>;
+	}
+
+	#hcachalot_id{
+		text-align: left;
+		background-color: <?=$etage['couleur2']?>;
+		display: block;
+		position: absolute;
+		top:5%;
+		right:2%;
+		width:25%;
+		height: 50%;
+		color: <?=$etage['couleur5']?>;
+	}
+	
+	#operation_id {
+		text-align: left;
+		font-family: Consolas, Monaco, Courier New, Courier, monospace;
+		font-size: 12px;
+		background-color: #000000;
+		border: 1px solid #D0D0D0;
+		color: #ffffff;
+		display: block;
+		position: absolute;
+		top:60%;
+		left:20%;
+		width:60%;
+		height: auto;
+	}
+	
+	#cachalot_div_id{
+		display: block;
+		position: absolute;
+		top:25%;
+		left:30%;
+		width:40%;
+		height: 150px;
+		vertical-align: bottom;
+		text-align: left;
+		font-family: 'Zagoth', Old London, Consolas, Monaco, Courier New, Courier, monospace;
+		/*font-size: 6em;*/
+		text-align: center;
+		background-color: <?=$etage['couleur1']?>;
+		border: 1px solid #D0D0D0;
+		color: <?=$etage['couleur3']?>;
+	}
+	.gros1
+	{
+		font-size: 6em;
+	}
+	
+	#valider_id {
+		font-family: 'Zagoth', Old London, Consolas, Monaco, Courier New, Courier, monospace;
+		font-size: 21px;
+		color: #000000;
+		background-color: #ffffff;
+		margin: 3px;
+		width:20%;
+		height: 15%;
+	}
+	
+	#pg_input {
+		font-family: 'Zagoth',Old London, Consolas, Monaco, Courier New, Courier, monospace;
+		font-size: 4em;
+		height: 70px;
+		color: <?=$etage['couleur3']?>;
+		background-color: <?=$etage['couleur4']?>;
+		text-align: center;
+		width:80%;
+	}
+
+	
+	#settings {
+
+		display: block;
+		position: absolute;
+		bottom:10px;
+		right:10px;
+	}
+	
+	.barred{
+		text-decoration: line-through;
+	}
+
+	</style>
+
+	
+	<script src="jquery_min.js"></script>
+</head>
+<body>
+	
+	
+	
+	<div id="container_id">
+
+		<div id="info_id">
+<!--
+<ul>
+
+
+
+<li><a href="https://soundcloud.com/robin-franky-vincent" style="color: <?=$etage['couleur5']?>;text-decoration:none;"target="upduv">&nbsp&nbsp&nbsp Une playlist &nbsp&nbsp&nbsp</a> </li>
+<li><a href="http://www.ueensam.org/" style="color: <?=$etage['couleur5']?>;text-decoration:none;"target="upduv">&nbsp&nbsp&nbsp Site de l'UE &nbsp&nbsp&nbsp</a> </li>
+<li><a href="https://www.spotify.com" style="color: <?=$etage['couleur5']?>;text-decoration:none;"target="upduv">&nbsp&nbsp&nbsp Spotify &nbsp&nbsp&nbsp</a> </li>
+<li><a href="https://play.google.com/music/listen" style="color: <?=$etage['couleur5']?>;text-decoration:none;"target="upduv">&nbsp&nbsp&nbsp Google Music &nbsp&nbsp&nbsp</a> </li>
+<li><a href="http://www.deezer.com/" style="color: <?=$etage['couleur5']?>;text-decoration:none;"target="upduv">&nbsp&nbsp&nbsp Deezer.fr &nbsp&nbsp&nbsp</a> </li>
+<li><a href="https://www.youtube.com/?hl=fr&gl=FR" style="color: <?=$etage['couleur5']?>;text-decoration:none;"target="upduv">&nbsp&nbsp&nbsp Youtube.fr &nbsp&nbsp&nbsp</a> </li>
+
+</ul>
+-->
+			<?php
+			/*
+			<h2>&nbsp;&nbsp;&nbsp;Les plus gros n&eacute;gat'sss :</h2>
+			<ul>
+			$query = $this->db->query("SELECT * FROM gadzarts ORDER BY gadzarts_cachalot_solde ASC LIMIT 15");
+			
+			if ($query->num_rows() > 0)
+			{
+				foreach ($query->result_array() as $user)
+				{
+					if($user['gadzarts_cachalot_solde']<0)
+					{
+						echo "<li>";
+						echo "<p>";
+							echo stripslashes($user['gadzarts_surnom'])." ".$user['gadzarts_fams']." ".$user['gadzarts_tbk']." ".$user['gadzarts_proms']." : ".$user['gadzarts_cachalot_solde']."&euro;";
+						echo "</p>";
+						echo "</li>";	
+					}
+				}
+			}
+				else{ echo "Aucune op&eacute;ration d&eacute;t&eacute;ct&eacute;e dans la base de donn&eacute;e.";}
+			*/
+			?>
+			</ul>
+		
+		</div>
+
+<!--
+		<div id="lattometre_img">
+		<img id="" src="graph24h.php"><br>
+		<img id="" src="graph60mn.php">
+		</div>
+
+
+		<div id="lattometre_label">
+<center>
+				 <br>
+L<br>&nbsp;<br>
+a<br>&nbsp;<br>
+t<br>&nbsp;<br>
+t<br>&nbsp;<br>
+o<br>&nbsp;<br>
+m<br>&nbsp;<br>
+&egrave;<br>&nbsp;<br>
+t<br>&nbsp;<br>
+r<br>&nbsp;<br>
+e<br>&nbsp;<br>
+
+</center>		
+</div>
+-->
+		<div id="bucquage_input_id">
+		    
+
+			<form action="./gadz_accueil.php" method="post" id="pg_input_form">
+
+			    <center>
+			    <?php
+			    if(isset($_GET['erreur']))
+			    {
+				if(is_numeric($_GET['erreur']))
+				{
+				    switch ($_GET['erreur'])
+				    {
+					case 0:
+					echo "Il faut entrer un trigramme.";
+					break;
+				    
+					case 1:
+					echo "Trigramme inexistant.";
+					break;
+				    
+					case 2:
+					echo "Trigramme inexistant.";
+					break;
+					
+					default:
+					echo "Quel est ton trigramme ?";
+				    }
+				}
+			    }
+			    if(isset($_GET['lettres_inutiles']))
+			    {
+				?>
+				<script>
+				    alert("Lettres inutiles : <?=$_GET['lettres_inutiles'];?>");
+				</script>
+				
+				<?php
+			    }
+			    ?><br>
+                            <input type="password" name="pg_input" id="pg_input">
+				<br>
+Une question ? Kiwi 21 An 211 <br><br><br>
+
+			    </center>
+			</form>
+
+		</div>
+		<div id="cachalot_div_id">
+			<span class="gros1">
+			<br><br>
+			<?php
+			
+			if($etage['nom_du_foys']!=""){
+				echo $etage['nom_du_foys'];	
+			}
+			else{
+				echo "Zacachal'sss (".$choix_etage."e)";
+			}	
+			
+			?>
+			<br><br>
+			</span>
+
+		</div>
+		
+		<div id="hcachalot_id">
+			
+		</div>
+
+		<div id="operation_id">
+		    <center><br>
+		    <table id="">
+			<?php
+			
+			$req = $bdd->prepare("SELECT * FROM operations WHERE operation_type = 'bucquage' ORDER BY operation_time DESC LIMIT 20");
+                        $req->execute();
+                        while ($operation = $req->fetch())
+                        {
+			    /* Requete SQL pour le Gadzarts en cours */
+			    $req2 = $bdd->prepare('SELECT * FROM gadzarts WHERE gadzarts_id = ?');
+			    $req2->execute(array($operation['operation_gadzarts_id']));
+			    if ($req2->rowCount() == 1)
+			    {
+				$gadz=$req2->fetch();
+				$req2->closeCursor();
+			    }
+			    else
+			    {
+				$req2->closeCursor();
+			    }
+			    
+				$compte_a_rebours=(120-(time()-strtotime($operation['operation_time'])));
+				if($operation['operation_annulee'])
+				{
+				    echo "<tr class='barred'>";
+				}
+				else
+				{
+                                    echo "<tr>";
+				}
+				if(isset($gadz))
+				{
+				    echo "<td>".$gadz['gadzarts_surnom']."</td><td>".$gadz['gadzarts_fams']." ".$gadz['gadzarts_tbk']." ".$gadz['gadzarts_proms']."</td>";
+				}
+				else
+				{
+				    echo "<td>Probl&egrave;me de compte</td>";
+				}
+				echo"
+				<td> &nbsp;&nbsp; (".$operation['operation_etage']."<sup>e</sup>) &nbsp;&nbsp; </td>
+				<td style='text-align:center;'>".$operation['operation_libelle']."</td>
+				<td><b>".$operation['operation_montant']."&euro;</b></td>
+				<td>".$operation['operation_time']."</td>
+				</tr>";
+			}            
+				
+			?>
+		    </table><br>
+		    </center>
+		</div>
+		
+		<div id="settings">
+		<a href='./administration.php'><img src='./images/settings.png' alt="Administration" ></a>
+		<a href='./choisir_etage.php'><img src='./images/home.png' alt="Accueil"></a>
+		<a href='./etage_histo.php'><img width=30 src='./images/history.png' alt="Historique"></a>
+		</div>
+
+	</div>
+
+
+
+<script type="text/javascript"><!--
+<?php
+
+if($_SESSION['admin'])
+{
+    echo "alert('ATTENTION : mode admin actif.');";
+}
+?>
+
+$(document).ready(function () {
+
+  $("#lattometre_label").hover(function(){
+    $("#lattometre_img").slideToggle("slow");
+    $("#lattometre_img").css("z-index","4");
+  });
+   
+	$('#pg_input').focus(); //-->
+	
+	$('#settings').hide();
+	
+	$( "#pg_input" ).keyup(function( event ) {
+	
+		if($("#pg_input").val()==' ')
+		{			
+			$('#settings').show();
+		}
+		else
+		{			
+			$('#settings').hide();
+		}
+		
+	
+		if (($("#pg_input").val().length>=3) || $("#pg_input").val()=='=') {
+			$("#pg_input_form").submit();	
+		}
+	
+	});
+
+    
+});
+</script>
+
+
+</body>
+</html>
+							
+	
